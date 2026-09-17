@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NoorLearn — Your AI Teaching Assistant</title>
+
+    <style>
+        /* ================================
+           RESET & BASE
+        ================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         Roboto, Arial, sans-serif;
+            background: #f5f7fb;
+            color: #263238;
+            min-height: 100vh;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* ================================
+           APP CONTAINER
+        ================================= */
+
+        .app {
+            min-height: 100vh;
+        }
+
+        /* ================================
+           HEADER
+        ================================= */
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #e8ecf2;
+            padding: 18px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #e9f5ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+        }
+
+        .brand-name {
+            font-size: 21px;
+            font-weight: 750;
+            color: #183c2b;
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #7b8794;
+            margin-top: 2px;
+        }
+
+        /* ================================
+           MAIN
+        ================================= */
+
+        main {
+            width: min(1100px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 55px 0 80px;
+        }
+
+        /* ================================
+           DASHBOARD
+        ================================= */
+
+        #dashboard {
+            display: block;
+        }
+
+        .hero {
+            text-align: center;
+            max-width: 750px;
+            margin: 0 auto 48px;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            line-height: 1.1;
+            color: #173c2a;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .hero .subtitle {
+            font-size: 19px;
+            color: #687580;
+            margin-bottom: 10px;
+        }
+
+        .hero .tagline {
+            font-size: 15px;
+            color: #89939d;
+        }
+
+        .greeting {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .greeting h2 {
+            font-size: 24px;
+            color: #29343b;
+        }
+
+        .greeting p {
+            margin-top: 7px;
+            color: #87919a;
+            font-size: 14px;
+        }
+
+        /* ================================
+           TOOL CARDS
+        ================================= */
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .tool-card {
+            border: 1px solid #e5eaf0;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 25px 18px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: 0.2s ease;
+            box-shadow: 0 4px 15px rgba(30, 45, 55, 0.04);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+            border-color: #b9d9c8;
+            box-shadow: 0 10px 25px rgba(30, 45, 55, 0.08);
+        }
+
+        .tool-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 15px;
+            background: #f0f7f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            margin-bottom: 14px;
+        }
+
+        .tool-card h3 {
+            font-size: 15px;
+            color: #29363d;
+            font-weight: 650;
+        }
+
+        .tool-card p {
+            color: #8a959d;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        /* ================================
+           SECTIONS
+        ================================= */
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            border: 1px solid #dfe5ea;
+            background: #ffffff;
+            color: #53616b;
+            padding: 9px 14px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        .back-button:hover {
+            background: #f3f6f8;
+        }
+
+        .section-title h2 {
+            color: #183c2b;
+            font-size: 28px;
+        }
+
+        .section-title p {
+            color: #818c94;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ================================
+           FORM CARD
+        ================================= */
+
+        .form-card {
+            background: #ffffff;
+            border: 1px solid #e5eaf0;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(30, 45, 55, 0.04);
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 650;
+            color: #46545d;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 1px solid #dce3e8;
+            border-radius: 11px;
+            padding: 12px 14px;
+            background: #fbfcfd;
+            color: #263238;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #91bca5;
+            box-shadow: 0 0 0 3px rgba(145, 188, 165, 0.15);
+            background: #ffffff;
+        }
+
+        .submit-row {
+            margin-top: 28px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .primary-button {
+            border: none;
+            border-radius: 11px;
+            background: #2f6b4d;
+            color: #ffffff;
+            padding: 12px 22px;
+            font-weight: 650;
+            transition: 0.2s;
+        }
+
+        .primary-button:hover {
+            background: #25583f;
+            transform: translateY(-1px);
+        }
+
+        .primary-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ================================
+           LOADING
+        ================================= */
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 45px 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #e2ebe6;
+            border-top-color: #2f6b4d;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading p {
+            color: #7d898f;
+            font-size: 14px;
+        }
+
+        /* ================================
+           RESULT
+        ================================= */
+
+        .result-container {
+            display: none;
+            max-width: 850px;
+            margin: 30px auto 0;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        .result-card {
+            background: #ffffff;
+            border: 1px solid #e5eaf0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(30, 45, 55, 0.04);
+        }
+
+        .result-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #e9edf1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .result-header h3 {
+            font-size: 17px;
+            color: #294238;
+        }
+
+        .saved-message {
+            display: none;
+            font-size: 13px;
+            color: #2f6b4d;
+            font-weight: 600;
+        }
+
+        .saved-message.show {
+            display: inline;
+        }
+
+        .result-content {
+            padding: 28px;
+            line-height: 1.7;
+            color: #35424a;
+        }
+
+        /* Markdown formatting */
+
+        .result-content h1,
+        .result-content h2,
+        .result-content h3 {
+            color: #214c35;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .result-content h1:first-child,
+        .result-content h2:first-child,
+        .result-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .result-content h2 {
+            font-size: 21px;
+        }
+
+        .result-content h3 {
+            font-size: 17px;
+        }
+
+        .result-content p {
+            margin-bottom: 13px;
+        }
+
+        .result-content ul,
+        .result-content ol {
+            margin: 8px 0 18px 24px;
+        }
+
+        .result-content li {
+            margin-bottom: 6px;
+        }
+
+        .result-content strong {
+            color: #244b36;
+        }
+
+        .result-content blockquote {
+            border-left: 4px solid #9cc5ac;
+            padding-left: 15px;
+            color: #647078;
+            margin: 15px 0;
+        }
+
+        .result-actions {
+            padding: 18px 24px;
+            border-top: 1px solid #e9edf1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .secondary-button {
+            border: 1px solid #d9e1e5;
+            background: #ffffff;
+            color: #53616b;
+            padding: 10px 17px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .secondary-button:hover {
+            background: #f4f7f8;
+        }
+
+        .save-button {
+            border: none;
+            background: #e8f3ed;
+            color: #286143;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 650;
+            transition: 0.2s;
+        }
+
+        .save-button:hover {
+            background: #d9ecdf;
+        }
+
+        /* ================================
+           PLACEHOLDER
+        ================================= */
+
+        .placeholder-card {
+            max-width: 750px;
+            margin: 40px auto;
+            padding: 55px 30px;
+            text-align: center;
+            background: #ffffff;
+            border: 1px solid #e5eaf0;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(30, 45, 55, 0.04);
+        }
+
+        .placeholder-icon {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .placeholder-card h3 {
+            color: #294238;
+            margin-bottom: 8px;
+        }
+
+        .placeholder-card p {
+            color: #87929a;
+            font-size: 14px;
+        }
+
+        /* ================================
+           ERROR
+        ================================= */
+
+        .error-message {
+            display: none;
+            max-width: 850px;
+            margin: 25px auto;
+            padding: 15px 18px;
+            background: #fff3f2;
+            border: 1px solid #f0d2cf;
+            border-radius: 12px;
+            color: #a34840;
+            font-size: 14px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* ================================
+           RESPONSIVE
+        ================================= */
+
+        @media (max-width: 850px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 15px 20px;
+            }
+
+            main {
+                width: min(100% - 25px, 1100px);
+                padding-top: 35px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+            .section-header {
+                align-items: flex-start;
+            }
+
+            .result-actions {
+                flex-direction: column;
+            }
+
+            .result-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================================
+         HEADER
+    ================================= -->
+
+    <header>
+        <div class="brand">
+            <div class="brand-icon">🌱</div>
+
+            <div>
+                <div class="brand-name">NoorLearn</div>
+                <div class="brand-subtitle">Your AI teaching assistant</div>
+            </div>
+        </div>
+    </header>
+
+
+    <main>
+
+        <!-- ================================
+             DASHBOARD
+        ================================= -->
+
+        <section id="dashboard">
+
+            <div class="hero">
+                <h1>NoorLearn</h1>
+
+                <p class="subtitle">
+                    Your AI teaching assistant
+                </p>
+
+                <p class="tagline">
+                    Connecting what you teach, test, and track — in one place.
+                </p>
+            </div>
+
+
+            <div class="greeting">
+                <h2>Good morning, Teacher! 👋</h2>
+
+                <p>
+                    What would you like to work on today?
+                </p>
+            </div>
+
+
+            <div class="tools-grid">
+
+                <button
+                    class="tool-card"
+                    onclick="showSection('lesson-plan')"
+                >
+                    <div class="tool-icon">📝</div>
+
+                    <h3>Create Lesson Plan</h3>
+
+                    <p>
+                        Build a classroom-ready lesson
+                    </p>
+                </button>
+
+
+                <button
+                    class="tool-card"
+                    onclick="showSection('quiz')"
+                >
+                    <div class="tool-icon">❓</div>
+
+                    <h3>Generate Quiz</h3>
+
+                    <p>
+                        Create quizzes for your students
+                    </p>
+                </button>
+
+
+                <button
+                    class="tool-card"
+                    onclick="showSection('worksheet')"
+                >
+                    <div class="tool-icon">📄</div>
+
+                    <h3>Create Worksheet</h3>
+
+                    <p>
+                        Generate student worksheets
+                    </p>
+                </button>
+
+
+                <button
+                    class="tool-card"
+                    onclick="showSection('analyze')"
+                >
+                    <div class="tool-icon">📊</div>
+
+                    <h3>Analyze Students</h3>
+
+                    <p>
+                        Understand student performance
+                    </p>
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             LESSON PLAN
+        ================================= -->
+
+        <section id="lesson-plan" class="section">
+
+            <div class="section-header">
+
+                <button
+                    class="back-button"
+                    onclick="backToDashboard()"
+                >
+                    ← Back
+                </button>
+
+                <div class="section-title">
+                    <h2>📝 Create Lesson Plan</h2>
+
+                    <p>
+                        Generate a structured, classroom-ready lesson plan.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="form-card">
+
+                <form id="lessonPlanForm">
+
+                    <div class="form-grid">
+
+                        <!-- Class -->
+
+                        <div class="form-group">
+
+                            <label for="class">
+                                Class
+                            </label>
+
+                            <input
+                                type="text"
+                                id="class"
+                                name="class"
+                                placeholder="e.g. 8"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Subject -->
+
+                        <div class="form-group">
+
+                            <label for="subject">
+                                Subject
+                            </label>
+
+                            <input
+                                type="text"
+                                id="subject"
+                                name="subject"
+                                placeholder="e.g. Science"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Topic -->
+
+                        <div class="form-group full-width">
+
+                            <label for="topic">
+                                Topic
+                            </label>
+
+                            <input
+                                type="text"
+                                id="topic"
+                                name="topic"
+                                placeholder="e.g. Photosynthesis"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Duration -->
+
+                        <div class="form-group">
+
+                            <label for="duration">
+                                Duration (minutes)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="duration"
+                                name="duration"
+                                placeholder="e.g. 45"
+                                min="1"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Student Level -->
+
+                        <div class="form-group">
+
+                            <label for="level">
+                                Student Level
+                            </label>
+
+                            <select
+                                id="level"
+                                name="level"
+                                required
+                            >
+
+                                <option value="">
+                                    Select student level
+                                </option>
+
+                                <option value="Beginner">
+                                    Beginner
+                                </option>
+
+                                <option value="Intermediate">
+                                    Intermediate
+                                </option>
+
+                                <option value="Advanced">
+                                    Advanced
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="submit-row">
+
+                        <button
+                            type="submit"
+                            class="primary-button"
+                            id="generateButton"
+                        >
+                            ✨ Generate Lesson Plan
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- Loading -->
+
+            <div
+                id="loading"
+                class="loading"
+            >
+
+                <div class="spinner"></div>
+
+                <p>
+                    Creating your lesson plan...
+                </p>
+
+            </div>
+
+
+            <!-- Error -->
+
+            <div
+                id="errorMessage"
+                class="error-message"
+            ></div>
+
+
+            <!-- Result -->
+
+            <div
+                id="resultContainer"
+                class="result-container"
+            >
+
+                <div class="result-card">
+
+                    <div class="result-header">
+
+                        <h3>
+                            Generated Lesson Plan
+                        </h3>
+
+                        <span
+                            id="savedMessage"
+                            class="saved-message"
+                        >
+                            ✓ Saved
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="resultContent"
+                        class="result-content"
+                    ></div>
+
+
+                    <div class="result-actions">
+
+                        <button
+                            class="secondary-button"
+                            onclick="backToDashboard()"
+                        >
+                            ← Back to Dashboard
+                        </button>
+
+                        <button
+                            class="save-button"
+                            onclick="saveLessonPlan()"
+                        >
+                            💾 Save
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             QUIZ
+        ================================= -->
+
+        <section id="quiz" class="section">
+
+            <div class="section-header">
+
+                <button
+                    class="back-button"
+                    onclick="backToDashboard()"
+                >
+                    ← Back
+                </button>
+
+                <div class="section-title">
+
+                    <h2>❓ Generate Quiz</h2>
+
+                    <p>
+                        Create quizzes for your students.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="placeholder-card">
+
+                <div class="placeholder-icon">
+                    ❓
+                </div>
+
+                <h3>
+                    Quiz Generator
+                </h3>
+
+                <p>
+                    This section is ready for the quiz-generation feature.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             WORKSHEET
+        ================================= -->
+
+        <section id="worksheet" class="section">
+
+            <div class="section-header">
+
+                <button
+                    class="back-button"
+                    onclick="backToDashboard()"
+                >
+                    ← Back
+                </button>
+
+                <div class="section-title">
+
+                    <h2>📄 Create Worksheet</h2>
+
+                    <p>
+                        Generate worksheets for your students.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="placeholder-card">
+
+                <div class="placeholder-icon">
+                    📄
+                </div>
+
+                <h3>
+                    Worksheet Generator
+                </h3>
+
+                <p>
+                    This section is ready for the worksheet-generation feature.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             ANALYZE STUDENTS
+        ================================= -->
+
+        <section id="analyze" class="section">
+
+            <div class="section-header">
+
+                <button
+                    class="back-button"
+                    onclick="backToDashboard()"
+                >
+                    ← Back
+                </button>
+
+                <div class="section-title">
+
+                    <h2>📊 Analyze Students</h2>
+
+                    <p>
+                        Understand student performance and risk.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="placeholder-card">
+
+                <div class="placeholder-icon">
+                    📊
+                </div>
+
+                <h3>
+                    Student Analysis
+                </h3>
+
+                <p>
+                    This section is ready for the student-risk analysis feature.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    /* =========================================
+       CONFIGURATION
+    ========================================= */
+
+    const API_BASE_URL = "http://127.0.0.1:5000";
+
+
+    /* =========================================
+       CURRENT LESSON PLAN
+    ========================================= */
+
+    let currentLessonPlan = "";
+
+
+    /* =========================================
+       SECTION NAVIGATION
+    ========================================= */
+
+    function showSection(sectionId) {
+
+        // Hide dashboard
+        document.getElementById("dashboard").style.display = "none";
+
+        // Hide all sections
+        const sections = document.querySelectorAll(".section");
+
+        sections.forEach(function(section) {
+            section.classList.remove("active");
+        });
+
+        // Show requested section
+        const selectedSection = document.getElementById(sectionId);
+
+        if (selectedSection) {
+            selectedSection.classList.add("active");
+        }
+
+        // Scroll to top
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+
+    function backToDashboard() {
+
+        // Hide all sections
+        const sections = document.querySelectorAll(".section");
+
+        sections.forEach(function(section) {
+            section.classList.remove("active");
+        });
+
+        // Show dashboard
+        document.getElementById("dashboard").style.display = "block";
+
+        // Scroll to top
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+
+    /* =========================================
+       LESSON PLAN FORM
+    ========================================= */
+
+    document
+        .getElementById("lessonPlanForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const classValue =
+                document.getElementById("class").value.trim();
+
+            const subject =
+                document.getElementById("subject").value.trim();
+
+            const topic =
+                document.getElementById("topic").value.trim();
+
+            const duration =
+                document.getElementById("duration").value;
+
+            const level =
+                document.getElementById("level").value;
+
+
+            /* ---------------------------------
+               Get UI elements
+            --------------------------------- */
+
+            const loading =
+                document.getElementById("loading");
+
+            const resultContainer =
+                document.getElementById("resultContainer");
+
+            const resultContent =
+                document.getElementById("resultContent");
+
+            const errorMessage =
+                document.getElementById("errorMessage");
+
+            const generateButton =
+                document.getElementById("generateButton");
+
+            const savedMessage =
+                document.getElementById("savedMessage");
+
+
+            /* ---------------------------------
+               Reset previous state
+            --------------------------------- */
+
+            errorMessage.classList.remove("show");
+
+            resultContainer.classList.remove("active");
+
+            savedMessage.classList.remove("show");
+
+            resultContent.innerHTML = "";
+
+            currentLessonPlan = "";
+
+
+            /* ---------------------------------
+               Show loading
+            --------------------------------- */
+
+            loading.classList.add("active");
+
+            generateButton.disabled = true;
+
+            generateButton.textContent = "⏳ Generating...";
+
+
+            /* ---------------------------------
+               Prompts
+            --------------------------------- */
+
+            const systemPrompt =
+                `You are an expert pedagogy consultant and curriculum designer for Indian school education (NCERT/CBSE aligned). You create structured, classroom-ready lesson plans for teachers. Always output in clean Markdown with the exact section headers provided.`;
+
+
+            const userPrompt =
+                `Create a lesson plan for Class ${classValue}, Subject ${subject}, Topic ${topic}, Duration ${duration} minutes, Student level ${level}. Output using exactly these sections: 1. Learning Objectives 2. Previous Knowledge Required 3. Introduction Activity 4. Explanation 5. Classroom Activity 6. Questions for Students 7. Assessment 8. Homework 9. Teaching Resources Needed`;
+
+
+            try {
+
+                /* ---------------------------------
+                   Send request to Flask backend
+                --------------------------------- */
+
+                const response = await fetch(
+                    `${API_BASE_URL}/generate`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            system_prompt: systemPrompt,
+                            user_prompt: userPrompt
+                        })
+                    }
+                );
+
+
+                /* ---------------------------------
+                   Check HTTP response
+                --------------------------------- */
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `Server returned HTTP ${response.status}`
+                    );
+
+                }
+
+
+                /* ---------------------------------
+                   Read JSON
+                --------------------------------- */
+
+                const data = await response.json();
+
+
+                if (!data.text) {
+
+                    throw new Error(
+                        "The server did not return generated text."
+                    );
+
+                }
+
+
+                /* ---------------------------------
+                   Store result
+                --------------------------------- */
+
+                currentLessonPlan = data.text;
+
+
+                /* ---------------------------------
+                   Convert Markdown to HTML
+                --------------------------------- */
+
+                resultContent.innerHTML =
+                    markdownToHTML(currentLessonPlan);
+
+
+                /* ---------------------------------
+                   Hide loading
+                --------------------------------- */
+
+                loading.classList.remove("active");
+
+                generateButton.disabled = false;
+
+                generateButton.textContent =
+                    "✨ Generate Lesson Plan";
+
+
+                /* ---------------------------------
+                   Show result
+                --------------------------------- */
+
+                resultContainer.classList.add("active");
+
+
+                // Scroll to result
+                setTimeout(function() {
+
+                    resultContainer.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }, 100);
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Lesson plan generation error:",
+                    error
+                );
+
+
+                loading.classList.remove("active");
+
+                generateButton.disabled = false;
+
+                generateButton.textContent =
+                    "✨ Generate Lesson Plan";
+
+
+                errorMessage.textContent =
+                    "Unable to generate the lesson plan. " +
+                    "Make sure your Flask server is running at " +
+                    API_BASE_URL +
+                    " and that CORS is enabled. " +
+                    "Error: " +
+                    error.message;
+
+
+                errorMessage.classList.add("show");
+
+            }
+
+        });
+
+
+    /* =========================================
+       SIMPLE MARKDOWN → HTML CONVERTER
+       
+       This keeps NoorLearn dependency-free.
+    ========================================= */
+
+    function markdownToHTML(markdown) {
+
+        if (!markdown) {
+            return "";
+        }
+
+
+        /*
+         * Escape HTML first so generated text
+         * cannot inject arbitrary HTML.
+         */
+
+        let text = escapeHTML(markdown);
+
+
+        /* ---------------------------------
+           Code blocks
+        --------------------------------- */
+
+        text = text.replace(
+            /```([\s\S]*?)```/g,
+            function(match, code) {
+
+                return `<pre><code>${code}</code></pre>`;
+
+            }
+        );
+
+
+        /* ---------------------------------
+           Headings
+        --------------------------------- */
+
+        text = text.replace(
+            /^### (.*)$/gm,
+            "<h3>$1</h3>"
+        );
+
+        text = text.replace(
+            /^## (.*)$/gm,
+            "<h2>$1</h2>"
+        );
+
+        text = text.replace(
+            /^# (.*)$/gm,
+            "<h1>$1</h1>"
+        );
+
+
+        /* ---------------------------------
+           Bold
+        --------------------------------- */
+
+        text = text.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+        /* ---------------------------------
+           Italic
+        --------------------------------- */
+
+        text = text.replace(
+            /(?<!\*)\*([^*\n]+)\*(?!\*)/g,
+            "<em>$1</em>"
+        );
+
+
+        /* ---------------------------------
+           Horizontal rule
+        --------------------------------- */
+
+        text = text.replace(
+            /^---$/gm,
+            "<hr>"
+        );
+
+
+        /*
+         * Process unordered list blocks.
+         */
+
+        text = text.replace(
+            /((?:^[ \t]*[-*] .*(?:\n|$))+)/gm,
+            function(block) {
+
+                const items = block
+                    .trim()
+                    .split("\n")
+                    .map(function(line) {
+
+                        return line
+                            .replace(/^[ \t]*[-*] /, "")
+                            .trim();
+
+                    })
+                    .filter(Boolean);
+
+                return (
+                    "<ul>" +
+                    items
+                        .map(function(item) {
+                            return `<li>${item}</li>`;
+                        })
+                        .join("") +
+                    "</ul>"
+                );
+
+            }
+        );
+
+
+        /*
+         * Process ordered list blocks.
+         */
+
+        text = text.replace(
+            /((?:^[ \t]*\d+\. .*(?:\n|$))+)/gm,
+            function(block) {
+
+                const items = block
+                    .trim()
+                    .split("\n")
+                    .map(function(line) {
+
+                        return line
+                            .replace(/^[ \t]*\d+\. /, "")
+                            .trim();
+
+                    })
+                    .filter(Boolean);
+
+                return (
+                    "<ol>" +
+                    items
+                        .map(function(item) {
+                            return `<li>${item}</li>`;
+                        })
+                        .join("") +
+                    "</ol>"
+                );
+
+            }
+        );
+
+
+        /*
+         * Blockquotes
+         */
+
+        text = text.replace(
+            /^> (.*)$/gm,
+            "<blockquote>$1</blockquote>"
+        );
+
+
+        /*
+         * Split into lines and create paragraphs.
+         */
+
+        const lines = text.split("\n");
+
+        let html = "";
+        let paragraph = [];
+
+
+        function flushParagraph() {
+
+            if (paragraph.length === 0) {
+                return;
+            }
+
+            const content =
+                paragraph.join(" ").trim();
+
+            if (content) {
+
+                /*
+                 * Don't wrap existing HTML blocks
+                 * in paragraph tags.
+                 */
+
+                if (
+                    content.startsWith("<h1>") ||
+                    content.startsWith("<h2>") ||
+                    content.startsWith("<h3>") ||
+                    content.startsWith("<ul>") ||
+                    content.startsWith("<ol>") ||
+                    content.startsWith("<pre>") ||
+                    content.startsWith("<blockquote>") ||
+                    content === "<hr>"
+                ) {
+
+                    html += content;
+
+                } else {
+
+                    html += `<p>${content}</p>`;
+
+                }
+
+            }
+
+            paragraph = [];
+
+        }
+
+
+        for (let i = 0; i < lines.length; i++) {
+
+            const line = lines[i].trim();
+
+
+            if (line === "") {
+
+                flushParagraph();
+
+            } else if (
+                line.startsWith("<h1>") ||
+                line.startsWith("<h2>") ||
+                line.startsWith("<h3>") ||
+                line.startsWith("<ul>") ||
+                line.startsWith("<ol>") ||
+                line.startsWith("<pre>") ||
+                line.startsWith("<blockquote>") ||
+                line === "<hr>"
+            ) {
+
+                flushParagraph();
+
+                html += line;
+
+            } else {
+
+                paragraph.push(line);
+
+            }
+
+        }
+
+
+        flushParagraph();
+
+
+        return html;
+
+    }
+
+
+    /* =========================================
+       ESCAPE HTML
+    ========================================= */
+
+    function escapeHTML(value) {
+
+        return value
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    /* =========================================
+       SAVE LESSON PLAN
+    ========================================= */
+
+    function saveLessonPlan() {
+
+        if (!currentLessonPlan) {
+
+            return;
+
+        }
+
+
+        const savedLessonPlans =
+            JSON.parse(
+                localStorage.getItem("noorlearn_lesson_plans")
+                || "[]"
+            );
+
+
+        const lessonPlan = {
+
+            id: Date.now(),
+
+            createdAt:
+                new Date().toISOString(),
+
+            content:
+                currentLessonPlan,
+
+            class:
+                document.getElementById("class").value,
+
+            subject:
+                document.getElementById("subject").value,
+
+            topic:
+                document.getElementById("topic").value,
+
+            duration:
+                document.getElementById("duration").value,
+
+            level:
+                document.getElementById("level").value
+
+        };
+
+
+        savedLessonPlans.push(lessonPlan);
+
+
+        localStorage.setItem(
+            "noorlearn_lesson_plans",
+            JSON.stringify(savedLessonPlans)
+        );
+
+
+        const savedMessage =
+            document.getElementById("savedMessage");
+
+
+        savedMessage.classList.add("show");
+
+
+        setTimeout(function() {
+
+            savedMessage.classList.remove("show");
+
+        }, 3000);
+
+    }
+
+</script>
+
+</body>
+</html>
