@@ -269,7 +269,7 @@ input:focus, select:focus, textarea:focus {
 .library-title { font-weight: 800; color: var(--primary); font-size: 17px; }
 .library-type { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: #f3eef8; color: var(--primary); white-space: nowrap; }
 .library-meta { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
-.library-preview { margin-top: 12px; color: var(--text-main); font-size: 14px; line-height: 1.6; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.library-preview { margin-top: 12px; color: var(--text-main); font-size: 14px; line-height: 1.6; white-space: pre-wrap; display: -webkit-box; line-clamp: 3; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .library-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 .library-empty { background: var(--card-bg); border: 1px dashed var(--border-color); border-radius: 20px; padding: 42px 24px; text-align: center; color: var(--text-muted); font-size: 15px; }
 
@@ -331,6 +331,18 @@ input:focus, select:focus, textarea:focus {
   .glance-item { border-right: 0; padding-right: 0; }
   .glance-link { margin-left: 0; text-align: left; padding-left: 0; }
 }
+.result-toolbar { display:flex; flex-wrap:wrap; gap:10px; padding:16px 20px; border-bottom:1px solid var(--border-color); background:#faf7fc; }
+.edit-container { padding:16px 20px; border-bottom:1px solid var(--border-color); }
+.edit-container textarea { width:100%; min-height:260px; border:1px solid var(--border-color); border-radius:12px; padding:14px; font-family:monospace; resize:vertical; }
+.edit-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:10px; }
+.student-upload-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:16px 0 8px; }
+.file-button { display:inline-flex; align-items:center; gap:8px; }
+.muted-message { color:var(--text-muted); font-size:13px; margin:8px 0 14px; }
+.clickable-resource { cursor:pointer; transition:.2s; }.clickable-resource:hover { border-color:#cbb2df; box-shadow:0 10px 24px rgba(74,46,104,.12); }
+.dashboard-resource-preview { width:100%; border:1px solid var(--border-color); border-radius:12px; background:#fff; color:var(--primary); padding:11px 13px; margin:6px 0; text-align:left; cursor:pointer; }.dashboard-resource-preview strong,.dashboard-resource-preview small{display:block}.dashboard-resource-preview small{color:var(--text-muted);font-size:11px;margin-top:3px}
+.resource-modal-heading { padding-right:30px; border-bottom:1px solid var(--border-color); padding-bottom:16px; margin-bottom:10px; }.resource-modal-heading h2{color:var(--primary);margin:6px 0}.resource-modal-heading p{color:var(--text-muted);font-size:13px}.resource-type{color:var(--accent-green);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.resource-modal-content{max-height:60vh;overflow:auto;padding:12px 0}
+.close-button { position:absolute; top:12px; right:16px; border:0; background:transparent; color:var(--text-muted); font-size:28px; line-height:1; cursor:pointer; }
+@media print { body * { visibility:hidden; } #printable-resource, #printable-resource * { visibility:visible; } #printable-resource { position:absolute; inset:0; padding:36px; background:#fff; color:#251d2d; } }
 </style>
 </head>
 <body>
@@ -448,41 +460,47 @@ input:focus, select:focus, textarea:focus {
   </form></div>
   <div id="lessonLoading" class="loading"><div class="spinner"></div><p>Creating your lesson plan...</p></div>
   <div id="lessonError" class="error-message"></div>
-  <div id="lessonResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Lesson Plan</h3><span id="savedMessage" class="saved-message">✓ Saved to Library</span></div><div id="lessonResultContent" class="result-content"></div><textarea id="lessonResultEditor" class="result-editor" style="display:none;width:90%;margin:20px auto;min-height:300px;"></textarea><div class="result-actions"><button class="secondary-button" onclick="backToDashboard()">← Back</button><button class="save-button" onclick="saveGeneratedResource('lesson-plan')">💾 Save Material</button></div></div></div>
+  <div id="lessonResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Lesson Plan</h3><span id="savedMessage" class="saved-message">✓ Saved to Library</span></div><div class="result-toolbar"><button class="secondary-button" onclick="toggleEditMode('lesson-plan')">✏️ Edit</button><button class="secondary-button" onclick="downloadAsPDF('lessonResultContent','Lesson Plan')">📄 Save as PDF</button><button class="primary-button" onclick="saveGeneratedResource('lesson-plan')">💾 Save Resource</button></div><div id="lessonResultContent" class="result-content"></div><div id="lesson-plan-edit-container" class="edit-container" style="display:none"><textarea id="lesson-plan-edit-textarea"></textarea><div class="edit-actions"><button class="secondary-button" onclick="toggleEditMode('lesson-plan')">Cancel</button><button class="primary-button" onclick="saveEdits('lesson-plan')">Apply Changes</button></div></div></div></div>
 </section>
 
 <section id="quiz" class="section generate-section">
   <div class="section-header"><button class="back-button" onclick="backToDashboard()">← Back</button><div class="section-title"><h2>❓ Generate Quiz</h2><p>Create a quiz assessment.</p></div></div>
   <div class="form-card"><form id="quizForm"><div class="form-grid"><div class="form-group"><label>Class</label><input id="quizClass" required placeholder="e.g. 8"></div><div class="form-group"><label>Subject</label><input id="quizSubject" required placeholder="e.g. Science"></div><div class="form-group full-width"><label>Topic</label><input id="quizTopic" required placeholder="e.g. Photosynthesis"></div><div class="form-group"><label>Number of Questions</label><input id="quizCount" type="number" min="1" value="10" required></div><div class="form-group"><label>Difficulty</label><select id="quizDifficulty"><option>Easy</option><option selected>Medium</option><option>Hard</option></select></div></div><div class="submit-row"><button class="primary-button" type="submit">✨ Generate Quiz</button></div></form></div>
-  <div id="quizLoading" class="loading"><div class="spinner"></div><p>Generating your quiz...</p></div><div id="quizError" class="error-message"></div><div id="quizResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Quiz</h3></div><div id="quizResultContent" class="result-content"></div><textarea id="quizResultEditor" style="display:none;"></textarea><div class="result-actions"><button class="secondary-button" onclick="backToDashboard()">← Back</button><button class="save-button" onclick="saveGeneratedResource('quiz')">💾 Save Quiz</button></div></div></div>
+  <div id="quizLoading" class="loading"><div class="spinner"></div><p>Generating your quiz...</p></div><div id="quizError" class="error-message"></div><div id="quizResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Quiz</h3></div><div class="result-toolbar"><button class="secondary-button" onclick="toggleEditMode('quiz')">✏️ Edit</button><button class="secondary-button" onclick="downloadAsPDF('quizResultContent','Quiz')">📄 Save as PDF</button><button class="primary-button" onclick="saveGeneratedResource('quiz')">💾 Save Resource</button></div><div id="quizResultContent" class="result-content"></div><div id="quiz-edit-container" class="edit-container" style="display:none"><textarea id="quiz-edit-textarea"></textarea><div class="edit-actions"><button class="secondary-button" onclick="toggleEditMode('quiz')">Cancel</button><button class="primary-button" onclick="saveEdits('quiz')">Apply Changes</button></div></div></div></div>
 </section>
 
 <section id="worksheet" class="section generate-section">
   <div class="section-header"><button class="back-button" onclick="backToDashboard()">← Back</button><div class="section-title"><h2>📄 Create Worksheet</h2><p>Generate a student practice worksheet.</p></div></div>
   <div class="form-card"><form id="worksheetForm"><div class="form-grid"><div class="form-group"><label>Class</label><input id="worksheetClass" required placeholder="e.g. 8"></div><div class="form-group"><label>Subject</label><input id="worksheetSubject" required placeholder="e.g. Mathematics"></div><div class="form-group full-width"><label>Topic</label><input id="worksheetTopic" required placeholder="e.g. Linear Equations"></div><div class="form-group"><label>Number of Questions</label><input id="worksheetCount" type="number" min="1" value="15" required></div><div class="form-group"><label>Difficulty</label><select id="worksheetDifficulty"><option>Easy</option><option selected>Medium</option><option>Hard</option></select></div></div><div class="submit-row"><button class="primary-button" type="submit">✨ Generate Worksheet</button></div></form></div>
-  <div id="worksheetLoading" class="loading"><div class="spinner"></div><p>Generating your worksheet...</p></div><div id="worksheetError" class="error-message"></div><div id="worksheetResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Worksheet</h3></div><div id="worksheetResultContent" class="result-content"></div><textarea id="worksheetResultEditor" style="display:none;"></textarea><div class="result-actions"><button class="secondary-button" onclick="backToDashboard()">← Back</button><button class="save-button" onclick="saveGeneratedResource('worksheet')">💾 Save Worksheet</button></div></div></div>
+  <div id="worksheetLoading" class="loading"><div class="spinner"></div><p>Generating your worksheet...</p></div><div id="worksheetError" class="error-message"></div><div id="worksheetResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Worksheet</h3></div><div class="result-toolbar"><button class="secondary-button" onclick="toggleEditMode('worksheet')">✏️ Edit</button><button class="secondary-button" onclick="downloadAsPDF('worksheetResultContent','Worksheet')">📄 Save as PDF</button><button class="primary-button" onclick="saveGeneratedResource('worksheet')">💾 Save Resource</button></div><div id="worksheetResultContent" class="result-content"></div><div id="worksheet-edit-container" class="edit-container" style="display:none"><textarea id="worksheet-edit-textarea"></textarea><div class="edit-actions"><button class="secondary-button" onclick="toggleEditMode('worksheet')">Cancel</button><button class="primary-button" onclick="saveEdits('worksheet')">Apply Changes</button></div></div></div></div>
 </section>
 
 <section id="question-paper" class="section generate-section">
   <div class="section-header"><button class="back-button" onclick="backToDashboard()">← Back</button><div class="section-title"><h2>🧾 Generate Question Paper</h2><p>Create a full examination paper.</p></div></div>
   <div class="form-card"><form id="questionPaperForm"><div class="form-grid"><div class="form-group"><label>Class</label><input id="paperClass" required placeholder="e.g. 10"></div><div class="form-group"><label>Subject</label><input id="paperSubject" required placeholder="e.g. Science"></div><div class="form-group full-width"><label>Topics / Chapters</label><textarea id="paperTopics" required placeholder="e.g. Chemical Reactions, Acids and Bases"></textarea></div><div class="form-group"><label>Total Marks</label><input id="paperMarks" type="number" min="1" value="50" required></div><div class="form-group"><label>Difficulty</label><select id="paperDifficulty"><option>Easy</option><option selected>Medium</option><option>Hard</option></select></div></div><div class="submit-row"><button class="primary-button" type="submit">✨ Generate Question Paper</button></div></form></div>
-  <div id="paperLoading" class="loading"><div class="spinner"></div><p>Generating question paper...</p></div><div id="paperError" class="error-message"></div><div id="paperResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Question Paper</h3></div><div id="paperResultContent" class="result-content"></div><textarea id="paperResultEditor" style="display:none;"></textarea><div class="result-actions"><button class="secondary-button" onclick="backToDashboard()">← Back</button><button class="save-button" onclick="saveGeneratedResource('question-paper')">💾 Save Paper</button></div></div></div>
+  <div id="paperLoading" class="loading"><div class="spinner"></div><p>Generating question paper...</p></div><div id="paperError" class="error-message"></div><div id="paperResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Question Paper</h3></div><div class="result-toolbar"><button class="secondary-button" onclick="toggleEditMode('question-paper')">✏️ Edit</button><button class="secondary-button" onclick="downloadAsPDF('paperResultContent','Question Paper')">📄 Save as PDF</button><button class="primary-button" onclick="saveGeneratedResource('question-paper')">💾 Save Resource</button></div><div id="paperResultContent" class="result-content"></div><div id="question-paper-edit-container" class="edit-container" style="display:none"><textarea id="question-paper-edit-textarea"></textarea><div class="edit-actions"><button class="secondary-button" onclick="toggleEditMode('question-paper')">Cancel</button><button class="primary-button" onclick="saveEdits('question-paper')">Apply Changes</button></div></div></div></div>
 </section>
 
 <section id="feedback" class="section generate-section">
   <div class="section-header"><button class="back-button" onclick="backToDashboard()">← Back</button><div class="section-title"><h2>💬 Generate Feedback</h2><p>Draft helpful student feedback notes.</p></div></div>
   <div class="form-card"><form id="feedbackForm"><div class="form-grid"><div class="form-group"><label>Student Name</label><input id="feedbackName" required placeholder="e.g. Aisha"></div><div class="form-group"><label>Subject</label><input id="feedbackSubject" required placeholder="e.g. Mathematics"></div><div class="form-group full-width"><label>Performance / Teacher Notes</label><textarea id="feedbackNotes" required placeholder="Describe student performance, strengths, and areas to improve."></textarea></div></div><div class="submit-row"><button class="primary-button" type="submit">✨ Generate Feedback</button></div></form></div>
-  <div id="feedbackLoading" class="loading"><div class="spinner"></div><p>Generating feedback...</p></div><div id="feedbackError" class="error-message"></div><div id="feedbackResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Feedback</h3></div><div id="feedbackResultContent" class="result-content"></div><textarea id="feedbackResultEditor" style="display:none;"></textarea><div class="result-actions"><button class="secondary-button" onclick="backToDashboard()">← Back</button><button class="save-button" onclick="saveGeneratedResource('feedback')">💾 Save Feedback</button></div></div></div>
+  <div id="feedbackLoading" class="loading"><div class="spinner"></div><p>Generating feedback...</p></div><div id="feedbackError" class="error-message"></div><div id="feedbackResult" class="result-container"><div class="result-card"><div class="result-header"><h3>Generated Feedback</h3></div><div class="result-toolbar"><button class="secondary-button" onclick="toggleEditMode('feedback')">✏️ Edit</button><button class="secondary-button" onclick="downloadAsPDF('feedbackResultContent','Student Feedback')">📄 Save as PDF</button><button class="primary-button" onclick="saveGeneratedResource('feedback')">💾 Save Resource</button></div><div id="feedbackResultContent" class="result-content"></div><div id="feedback-edit-container" class="edit-container" style="display:none"><textarea id="feedback-edit-textarea"></textarea><div class="edit-actions"><button class="secondary-button" onclick="toggleEditMode('feedback')">Cancel</button><button class="primary-button" onclick="saveEdits('feedback')">Apply Changes</button></div></div></div></div>
 </section>
 
 <section id="analyze" class="section">
-  <div class="section-header"><button class="back-button" onclick="backToDashboard()">← Back</button><div class="section-title"><h2>📊 Student Analytics</h2><p>Analyze student data and predict risk factors.</p></div></div>
+  <div class="section-header"><button class="back-button" onclick="backToDashboard()">← Back</button><div class="section-title"><h2>📊 Student Analytics</h2><p>Analyze student data and predict risk factors.</p><p id="studentListCounter" class="muted-message">Showing 0 of 0 students</p></div></div>
+  <div class="student-upload-row"><label class="secondary-button file-button">📄 Upload CSV<input id="studentCsvInput" type="file" accept=".csv,text/csv" hidden></label><button class="primary-button" onclick="toggleStudentSection('create-student-form')">＋ Add Student</button></div>
+  <p id="studentCsvStatus" class="muted-message">CSV columns: name, studytime, failures, absences, G1, G2, G3.</p>
+  <div id="create-student-form" class="form-card" style="display:none; margin-bottom:24px; padding:24px;"><form id="add-student-form"><div class="form-grid"><div class="form-group"><label>Student Name</label><input id="new-name" required></div><div class="form-group"><label>Study Time</label><input id="new-studytime" type="number" required></div><div class="form-group"><label>Failures</label><input id="new-failures" type="number" required></div><div class="form-group"><label>Absences</label><input id="new-absences" type="number" required></div><div class="form-group"><label>G1</label><input id="new-g1" type="number" required></div><div class="form-group"><label>G2</label><input id="new-g2" type="number" required></div><div class="form-group"><label>G3</label><input id="new-g3" type="number" required></div></div><div class="submit-row"><button class="primary-button" type="submit">Save Student</button></div></form></div>
   <div class="students-card">
     <div class="students-card-header"><h3>Student Risk Prediction ML</h3><p>Click "Predict Risk" to trigger prediction model.</p></div>
+    <div id="student-list">
     <div class="student-row" data-student='{"name":"Aarav","studytime":2,"failures":0,"absences":4,"G1":12,"G2":13,"G3":13}'><div class="student-info"><div class="student-name">Aarav <span class="risk-badge" id="risk-aarav"></span></div><div class="student-meta">Class 10 · Study time: 2 · Failures: 0 · Absences: 4 · Grades: 12 / 13 / 13</div></div><div class="student-actions"><button class="risk-button" onclick="predictRisk(this)">Predict Risk (ML)</button></div></div>
     <div class="student-row" data-student='{"name":"Aisha","studytime":1,"failures":2,"absences":12,"G1":8,"G2":9,"G3":8}'><div class="student-info"><div class="student-name">Aisha <span class="risk-badge" id="risk-aisha"></span></div><div class="student-meta">Class 10 · Study time: 1 · Failures: 2 · Absences: 12 · Grades: 8 / 9 / 8</div></div><div class="student-actions"><button class="risk-button" onclick="predictRisk(this)">Predict Risk (ML)</button></div></div>
     <div class="student-row" data-student='{"name":"Kabir","studytime":3,"failures":0,"absences":2,"G1":15,"G2":16,"G3":16}'><div class="student-info"><div class="student-name">Kabir <span class="risk-badge" id="risk-kabir"></span></div><div class="student-meta">Class 10 · Study time: 3 · Failures: 0 · Absences: 2 · Grades: 15 / 16 / 16</div></div><div class="student-actions"><button class="risk-button" onclick="predictRisk(this)">Predict Risk (ML)</button></div></div>
     <div class="student-row" data-student='{"name":"Meera","studytime":2,"failures":1,"absences":7,"G1":10,"G2":11,"G3":10}'><div class="student-info"><div class="student-name">Meera <span class="risk-badge" id="risk-meera"></span></div><div class="student-meta">Class 10 · Study time: 2 · Failures: 1 · Absences: 7 · Grades: 10 / 11 / 10</div></div><div class="student-actions"><button class="risk-button" onclick="predictRisk(this)">Predict Risk (ML)</button></div></div>
+    </div>
+    <button id="viewMoreStudents" class="secondary-button" type="button" onclick="showMoreStudents()" style="display:none; margin:16px auto;">View More Students</button>
   </div>
 </section>
 
@@ -505,6 +523,8 @@ input:focus, select:focus, textarea:focus {
 </section>
 
 </main></div>
+
+<div id="resourcePreviewModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeResourceModal()"><div class="modal-card" style="max-width:760px;max-height:85vh;overflow:auto;position:relative"><button class="close-button" onclick="closeResourceModal()" aria-label="Close preview">×</button><div id="resourceModalBody"></div></div></div>
 
 <script>
 const API_BASE_URL="http://127.0.0.1:5000";
@@ -570,6 +590,11 @@ function backToDashboard(){
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById("dashboard").style.display="block";
   window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function toggleStudentSection(id){
+  const section=document.getElementById(id);
+  if(section) section.style.display=section.style.display==="none"?"block":"none";
 }
 
 async function callGenerate(systemPrompt,userPrompt){
@@ -661,11 +686,46 @@ async function predictRisk(button){
     const response=await fetch(`${API_BASE_URL}/predict-risk`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(student)});
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const data=await response.json();
-    badge.textContent=data.risk===1?`⚠ At risk`:`✓ Not at risk`;
-    badge.className="risk-badge show "+(data.risk===1?"at-risk":"not-risk");
+    const isHighRisk=data.riskLevel==="High Risk" || data.risk===1;
+    badge.textContent=isHighRisk?`⚠ ${data.riskLevel||"At risk"}`:`✓ Not at risk`;
+    badge.className="risk-badge show "+(isHighRisk?"at-risk":"not-risk");
+    refreshStudentList();
   }catch(err){
     badge.textContent="Prediction unavailable";badge.className="risk-badge show error";
   }finally{button.disabled=false;}
+}
+
+let visibleStudentCount=5;
+const STUDENT_BATCH_SIZE=5;
+
+function studentRiskPriority(row){
+  const badge=row.querySelector(".risk-badge");
+  return badge?.classList.contains("at-risk") || /high risk|at risk/i.test(badge?.textContent||"") ? 0 : 1;
+}
+
+function refreshStudentList(){
+  const list=document.getElementById("student-list");
+  if(!list)return;
+  const rows=[...list.querySelectorAll(":scope > .student-row")];
+  rows.sort((first,second)=>studentRiskPriority(first)-studentRiskPriority(second));
+  rows.forEach((row,index)=>{
+    list.appendChild(row);
+    row.style.display=index<visibleStudentCount?"flex":"none";
+  });
+  const shown=Math.min(visibleStudentCount,rows.length);
+  const counter=document.getElementById("studentListCounter");
+  if(counter)counter.textContent=`Showing ${shown} of ${rows.length} students`;
+  const viewMore=document.getElementById("viewMoreStudents");
+  if(viewMore){
+    const hasMore=shown<rows.length;
+    viewMore.style.display=hasMore?"block":"none";
+    viewMore.textContent=hasMore?"View More Students":`Showing all ${rows.length} students`;
+  }
+}
+
+function showMoreStudents(){
+  visibleStudentCount+=STUDENT_BATCH_SIZE;
+  refreshStudentList();
 }
 
 let savedResources=JSON.parse(localStorage.getItem(RESOURCE_STORAGE_KEY)||"[]");
@@ -701,7 +761,8 @@ function renderSavedResources(){
   const filtered=savedResources.filter(r=>`${r.title} ${r.type} ${r.content}`.toLowerCase().includes(q));
   document.getElementById("savedResourceCount").textContent=savedResources.length;
   if(!filtered.length){list.innerHTML=`<div class="library-empty">No saved resources found.</div>`;return;}
-  list.innerHTML=filtered.map(r=>`<article class="library-card"><div class="library-card-top"><div><div class="library-title">${escapeHTML(r.title)}</div><div class="library-meta">${new Date(r.createdAt).toLocaleDateString()}</div></div><span class="library-type">${escapeHTML(r.type)}</span></div><div class="library-preview">${escapeHTML(r.content)}</div><div class="library-actions"><button class="secondary-button" onclick="deleteSavedResource(${r.id})">Delete</button></div></article>`).join("");
+  list.innerHTML=filtered.map(r=>`<article class="library-card clickable-resource" data-resource-id="${r.id}"><div class="library-card-top"><div><div class="library-title">${escapeHTML(r.title)}</div><div class="library-meta">${new Date(r.createdAt).toLocaleString()}</div></div><span class="library-type">${escapeHTML(r.type)}</span></div><div class="library-preview">${escapeHTML(r.content)}</div><div class="library-actions"><button class="secondary-button" onclick="event.stopPropagation();deleteSavedResource(${r.id})">Delete</button></div></article>`).join("");
+  list.querySelectorAll("[data-resource-id]").forEach(card=>card.addEventListener("click",()=>openResourceModal(savedResources.find(r=>String(r.id)===card.dataset.resourceId))));
 }
 
 function deleteSavedResource(id){
@@ -715,8 +776,78 @@ function renderDashboardSavedResources(){
   const box=document.getElementById("dashboardSavedResources");
   if(!box)return;
   const recent=[...savedResources].reverse().slice(0,4);
-  box.innerHTML=recent.length?recent.map(r=>`<div class="dashboard-task"><span class="dot"></span><span>${escapeHTML(r.title)} · ${escapeHTML(r.type)}</span></div>`).join(""):`<div class="dashboard-task empty">No saved resources yet</div>`;
+  box.innerHTML=recent.length?recent.map(r=>`<button class="dashboard-resource-preview" data-resource-id="${r.id}"><strong>${escapeHTML(r.title)}</strong><small>${new Date(r.createdAt).toLocaleDateString()}</small></button>`).join(""):`<div class="dashboard-task empty">No saved resources yet</div>`;
+  box.querySelectorAll("[data-resource-id]").forEach(card=>card.addEventListener("click",()=>openResourceModal(savedResources.find(r=>String(r.id)===card.dataset.resourceId))));
 }
+
+function openResourceModal(resource){
+  if(!resource)return;
+  const meta=resource.meta||{};
+  document.getElementById("resourceModalBody").innerHTML=`<div class="resource-modal-heading"><span class="resource-type">${escapeHTML(resource.title||resource.type)}</span><h2>${escapeHTML(resource.title||"Saved Resource")}</h2><p>${new Date(resource.createdAt).toLocaleString()}${meta.subject?` · ${escapeHTML(meta.subject)}`:""}${meta.class?` · Class ${escapeHTML(meta.class)}`:""}</p></div><div class="result-content resource-modal-content">${markdownToHTML(resource.content)}</div>`;
+  document.getElementById("resourcePreviewModal").style.display="flex";
+}
+
+function closeResourceModal(){document.getElementById("resourcePreviewModal").style.display="none";}
+
+const editorIds={"lesson-plan":"lesson-plan","quiz":"quiz","worksheet":"worksheet","question-paper":"question-paper",feedback:"feedback"};
+function toggleEditMode(type){
+  const state=generatedState[type], key=editorIds[type];
+  if(!state)return;
+  const container=document.getElementById(`${key}-edit-container`), textarea=document.getElementById(`${key}-edit-textarea`);
+  if(!container||!textarea)return;
+  textarea.value=state.rawText||"";
+  container.style.display=container.style.display==="none"?"block":"none";
+}
+
+function saveEdits(type){
+  const state=generatedState[type], key=editorIds[type], textarea=document.getElementById(`${key}-edit-textarea`);
+  if(!state||!textarea)return;
+  setGeneratedContent(type,textarea.value,state.title);
+  document.getElementById(`${key}-edit-container`).style.display="none";
+}
+
+function downloadAsPDF(contentId,title){
+  const source=document.getElementById(contentId);
+  if(!source)return;
+  const printable=document.createElement("div");
+  printable.id="printable-resource";
+  printable.innerHTML=`<h1>${escapeHTML(title)}</h1>${source.innerHTML}`;
+  document.body.appendChild(printable);
+  window.print();
+  printable.remove();
+}
+
+function parseStudentCSV(text){
+  const rows=text.trim().split(/\r?\n/).map(row=>row.split(",").map(cell=>cell.trim().replace(/^"|"$/g,"")));
+  if(rows.length<2)return[];
+  const headers=rows[0].map(header=>header.toLowerCase());
+  return rows.slice(1).filter(row=>row.some(Boolean)).map(row=>Object.fromEntries(headers.map((header,index)=>[header,row[index]||""]))).map(student=>({name:student.name||"Imported Student",studytime:Number(student.studytime||0),failures:Number(student.failures||0),absences:Number(student.absences||0),G1:Number(student.g1||0),G2:Number(student.g2||0),G3:Number(student.g3||0)}));
+}
+
+function appendImportedStudent(student){
+  const row=document.createElement("div");
+  row.className="student-row";
+  row.dataset.student=JSON.stringify(student);
+  row.innerHTML=`<div class="student-info"><div class="student-name">${escapeHTML(student.name)} <span class="risk-badge"></span></div><div class="student-meta">Study time: ${student.studytime} · Failures: ${student.failures} · Absences: ${student.absences} · Grades: ${student.G1} / ${student.G2} / ${student.G3}</div></div><div class="student-actions"><button class="risk-button" onclick="predictRisk(this)">Predict Risk (ML)</button></div>`;
+  document.getElementById("student-list").appendChild(row);
+  refreshStudentList();
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  refreshStudentList();
+  document.getElementById("add-student-form")?.addEventListener("submit",event=>{
+    event.preventDefault();
+    appendImportedStudent({name:document.getElementById("new-name").value.trim(),studytime:Number(document.getElementById("new-studytime").value),failures:Number(document.getElementById("new-failures").value),absences:Number(document.getElementById("new-absences").value),G1:Number(document.getElementById("new-g1").value),G2:Number(document.getElementById("new-g2").value),G3:Number(document.getElementById("new-g3").value)});
+    event.target.reset();
+  });
+  document.getElementById("studentCsvInput")?.addEventListener("change",event=>{
+    const file=event.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{const students=parseStudentCSV(reader.result);students.forEach(appendImportedStudent);document.getElementById("studentCsvStatus").textContent=`${students.length} student${students.length===1?"":"s"} imported. Select Predict Risk (ML) on any row.`;};
+    reader.readAsText(file);
+  });
+});
 
 // Teacher Notes Logic
 let teacherNotes=JSON.parse(localStorage.getItem(NOTES_STORAGE_KEY)||"[]");
