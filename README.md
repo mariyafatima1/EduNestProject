@@ -1,14 +1,32 @@
 # EduNest - Smart Teaching Partner
 
-EduNest is an intelligent web dashboard designed to help educators create course materials, analyze student performance, and predict academic risk using machine learning.
+EduNest is an intelligent web dashboard designed to help educators create teaching materials, analyze student performance, and predict academic risk using machine learning.
 
-## Key Features
-* **AI Material Generator:** Automated creation of customized lesson plans, quizzes, and worksheets.
-* **Student Risk Prediction:** Machine learning model to analyze attendance, grades, and study time to flag high-risk students early.
-* **Resource Management:** Inline material editing, resource saving, and quick PDF export capabilities.
+## 🚀 Live Demo
 
-## Tech Stack
-* **Frontend:** HTML5, CSS3, JavaScript
-* **Backend:** Python (Flask)
-* **Machine Learning:** Scikit-learn
-* **Deployment:** Streamlit Cloud / GitHub
+[Open EduNest](https://edunest-frontend-o3uy.onrender.com)
+
+## ✨ Key Features
+
+- **AI Material Generator** — Generate lesson plans, quizzes, worksheets, question papers, and student feedback.
+- **Student Risk Prediction** — Predict academic risk using attendance, grades, and study-related data.
+- **Resource Management** — Save, edit, preview, and export generated resources.
+- **Teacher Notes** — Create and manage teaching notes and tasks.
+
+## 🛠️ Tech Stack
+
+- **Frontend:** HTML, CSS, JavaScript
+- **Backend:** Python, Flask
+- **Machine Learning:** Scikit-learn
+- **AI:** Google Gemini API
+- **Deployment:** Render
+
+## 📂 Project Structure
+
+```text
+EduNestProject/
+├── index.html
+├── app.py
+├── requirements.txt
+├── risk_model.pkl
+└── risk_features.pkl
